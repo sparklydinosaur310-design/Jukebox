@@ -28,3 +28,82 @@ function pixelSprite(rows, scale, pal = PALLETTE) {
     return c;
 }
 
+const CHEST_CLOSED = [
+    ".kkkkkkkkkkkkkk.",
+    "kllllllllllllllk",
+    "kmmmmmmmmmmmmmmk",
+    "kmmdmmmmmmmmdmmk",
+    "kmmmmmmssmmmmmmk",
+    "kkkkkkkggkkkkkkk",
+    "kmmmmmmggmmmmmmk",
+    "kmmmmmmssmmmmmmk",
+    "kmmdmmmmmmmmdmmk",
+    "kmmmmmmmmmmmmmmk",
+    "kddddddddddddddk",
+    "kkkkkkkkkkkkkkkk",
+];
+
+const CHEST_OPEN = [
+    ".kkkkkkkkkkkkkk.",
+    "kllllllllllllllk",
+    "kmmmmmmmmmmmmmmk",
+    "kmmdmmmmmmmmdmmk",
+    "kmmmmmmmmmmmmmmk",
+    "kddddddddddddddk",
+    "kkkkkkkkkkkkkkkk",
+    "kiiiiiiiiiiiiiik",
+    "kiiiiiiiiiiiiiik",
+    "kllllllllllllllk",
+    "kmmmmmmssmmmmmmk",
+    "kmmdmmmmmmmmdmmk",
+    "kmmmmmmmmmmmmmmk",
+    "kddddddddddddddk",
+    "kkkkkkkkkkkkkkkk",
+];
+
+const JUKEBOX = [
+    "kkkkkkkkkkkkkkkk",
+    "kllllllllllllllk",
+    "kmmmmmmmmmmmmmmk",
+    "kddddddddddddddk",
+    "kmmkkkkkkkkkkmmk",
+    "kmmkiiiiiiiikmmk",
+    "kmmkiiiiiiiikmmk",
+    "kmmkkkkkkkkkkmmk",
+    "kmmmmmmmmmmmmmmk",
+    "kmmdmmmmmmmmdmmk",
+    "kmmmmmmmmmmmmmmk",
+    "kddddddddddddddk",
+    "kmmmmmmmmmmmmmmk",
+    "kmmmmmmmmmmmmmmk",
+    "kkkkkkkkkkkkkkkk",
+];
+
+const NOTE = [
+    "...yyyy.",
+    "...y..yy",
+    "...y....",
+    "...y....",
+    "...y....",
+    ".yyy....",
+    "yyyy....",
+    ".yy.....",
+];
+
+const DISC_ROWS = (() => {
+    const rows = [];
+    for (let y = 0; y < 16; y++) {
+        let r = "";
+        for (let x = 0; x < 16; x++) {
+            const d = Math.hypot(x - 7.5, y -7.5);
+            if (d < 1.6) r += ".";
+            else if (d < 4.3) r += "c";
+            else if (d < 7.9) r += d < 5.4 || d > 6.6 ? "o" : "w";
+            else r += ".";
+        }
+        rows.push(r);
+    }
+    return rows;
+})();
+
+function discSprite(color, scale = 4) {}
