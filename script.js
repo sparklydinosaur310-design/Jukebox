@@ -313,7 +313,7 @@ chestEL.tabIndex = 0;
 
 function say(text) { statusEL.textContent = text; }
 
-function makeDisc(trackIndex, onClick, spinning) {
+function makeDisc(trackIndex, onClick, spinning, from) {
     const wrap = document.createElement("div");
     wrap.className = "disc-wrap" + (spinning ? " spin" : "");
     wrap.title = "Disc: " + TRACKS[trackIndex].name;
