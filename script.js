@@ -17,7 +17,7 @@ function pixelSprite(rows, scale, pal = PALLETTE) {
     c.style.width = w * scale + "px";
     c.style.height = h * scale + "px";
     const ctx = c.getContext("2d");
-    rows.forEach((rows, y) => {
+    rows.forEach((row, y) => {
         [...row].forEach((ch, x) => {
             if (pal[ch]) {
                 ctx.fillStyle = pal[ch];
