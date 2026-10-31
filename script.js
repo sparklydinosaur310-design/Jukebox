@@ -261,3 +261,52 @@ function scheduleTrack(ctx, dest, t, t0) {
 });
 return bar * 4 * beat;
 }
+
+function startTrack(track,  onEnd) {
+    stopTrack();
+    if (!player.ctx) player.ctx = new (window.AudioContext || window.webkitAudioContext)
+    const ctx = player.ctx;
+    ctx.resume();
+
+    const g = ctx.createGain();
+    g.gain.value = 0.9;
+    g.connect(ctx.destination);
+    player.gain = g;
+
+    const t0 = ctx.currentTime + 0.1;
+    const end = t0 + scheduleTrack(ctx, g, track, t0) + 0.8;
+
+    player.timer = setInterval(() => {
+        if (ctx.currentTime >= end) {
+            stopTrack();
+            onEnd();
+        }
+    }, 150);
+}
+
+function stopTrack() {
+    clearInterval(player.timer);
+    player.nodes.forEach((o) => { try { o.stop(); } catch (e) {} });
+    player.nodes = [];
+    if (player.gain) { player.gain.disconnect(); player.gain = null; }
+}
+
+const pauseAudio = () => player.ctx && player.ctx.suspend();
+const resumeAudio = () => player.ctx && player.ctx.resume();
+
+const slots = [null, null, null];
+let current = -1;
+let playing = false;
+let chestOpen = false;
+
+const chestEL = document.getElementById("chest");
+const inventory = document.getElementById("inventory");
+const slotsBox = document.getElementById("slots");
+const jukeboxWrap = document.getElementById("jukeboxWrap");
+const jukeboxEL = document.getElementById("jukebox");
+const noteEL = document.getElementById("note");
+const statusEL = document.getElementById("status");
+
+jukeboxEL.appendChild(pixelSprite(JUKEBOX, 10));
+noteEL.appendChild(pixelSprite(NOTE, 5));
+chestEL.tabIndex = 0;
