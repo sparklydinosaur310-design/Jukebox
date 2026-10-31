@@ -310,3 +310,14 @@ const statusEL = document.getElementById("status");
 jukeboxEL.appendChild(pixelSprite(JUKEBOX, 10));
 noteEL.appendChild(pixelSprite(NOTE, 5));
 chestEL.tabIndex = 0;
+
+function say(text) { statusEL.textContent = text; }
+
+function makeDisc(trackIndex, onClick, spinning) {
+    const wrap = document.createElement("div");
+    wrap.className = "disc-wrap" + (spinning ? " spin" : "");
+    wrap.title = "Disc: " + TRACKS[trackIndex].name;
+    wrap.appendChild(discSprite(TRACKS[trackIndex].color));
+    wrap.oneclick = onClick;
+    return wrap;
+}
