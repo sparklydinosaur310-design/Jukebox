@@ -106,4 +106,51 @@ const DISC_ROWS = (() => {
     return rows;
 })();
 
-function discSprite(color, scale = 4) {}
+function discSprite(color, scale = 4) {
+    return pixelSprite(DISC_ROWS, scale, { c: color, o: "#101010", w: "#2e2e2e"});
+}
+
+(function makeDirt() {
+    const c = document.createElement("canvas");
+    c.width = c.height = 16;
+    const x = c.getContext("2d");
+    const cols = ["#5a3d24", "#4e341e", "#654529", "#47301c"];
+    for (let i = 0; i < 16; i++)
+        for (let j = 0; j < 16; j++) {
+            x.fillStyle = cols[Math.floor(Math.random() * cols.length)];
+            x.fillRect(i, j, 1, 1);
+        }
+    document.body.style.backgroundImage = `url(${c.toDataURL()})`;
+    document.body.style.backgroundSize = "64px 64px";
+})();
+
+const TRACKS = [
+    {
+        name: "Calm Piano",
+        color: "#e63946",
+        bpm: 70, step: 0.5, gain: 1,
+        wave: { mel: "triangle", arp: "sine", bass: "sine" },
+        chords: [
+            { bass: "A2", arp: ["A3", "C4", "E4"] },
+            { bass: "F2", arp: ["F3", "A3", "C4"] },
+            { bass: "C3", arp: ["C4", "E4", "G4"] },
+            { bass: "G2", arp: ["G3", "B3", "D4"] },
+        ],
+        sections: [
+            [
+                [["E5", 1], ["D5", 0.5], ["C5", 0.5], ["E5", 2]],
+                [["C5", 1], ["A4", 1], ["C5", 2]],
+                [["E5", 1], ["G5", 1], ["E5", 1], ["D5", 1]],
+                [["D5", 2], ["B4", 1], ["D5", 1]],
+            ],
+            [
+                [["A4", 1], ["C5", 1], ["E5", 2]],
+                [["F5", 1], ["E5", 1], ["C5", 2]],
+                [["G4", 1], ["C5", 1], ["E5", 1], ["G5", 1]]
+                [["F5", 1], ["D5", 1], ["B4", 2]],
+            ],
+        ],
+        order: [0, 1, 0]
+    },
+    
+]
