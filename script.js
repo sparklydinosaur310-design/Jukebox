@@ -207,3 +207,57 @@ const TRACKS = [
         order: [0, 1, 0],
     },
 ];
+
+function freq(note) {
+    const m = note.match(/^([A-G])([#b?])(\d)$/);
+    const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11}[m[1]]
+    + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0);
+    const semis = base + (Number(m[3]) - 4) * 12 - 9;
+    return 440 * Math.pow(2, semis / 12);
+}
+
+const player = { ctx: null, gain: null, timer: null, nodes: [] };
+
+function tone(ctx, dest, hz, start, dur, type, vol) {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = hz;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(vol, start + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    osc.connect(g);
+    g.connect(dest);
+    osc.start(start);
+    osc.stop(start + dur + 0.05);
+    player.nodes.push(osc);
+}
+
+function scheduleTrack(ctx, dest, t, t0) {
+    const beat = 60 / t.bpm;
+    const arpOrder = [0, 1, 2, 1];
+    let bar = 0;
+
+    t.order.forEach((si) => {
+        t.sections[si].forEach((melody, i) => {
+            const chord = t.chords[i];
+            const start = t0 + bar * 4 * beat;
+
+            tone(ctx, dest, freq(chord.bass), start, 4 * beat, t.waves.bass, 0.16 * t.gain);
+
+            const count = Math.round(4 / t.step);
+            for (let k = 0; k < count; k++) {
+                const n = chord.arp[arpOrder[k % 4]];
+                tone(ctx, dest, freq(n), start + k * t,step * beat, t,step * beat * 1.6, t.wave.arp, 0.07 * t.gain);
+        }
+
+        let pos = 0;
+        melody.forEach(([note, len]) => {
+            tone(ctx, dest, freq(note), start + pos * beat, len * beat * 0.95, t.wave.mel, 0.14 * t.gain);
+            pos += len;
+        });
+        bar++;
+    });
+});
+return bar * 4 * beat;
+}
