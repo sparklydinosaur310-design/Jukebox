@@ -1,0 +1,118 @@
+@font-face {
+    font-family: "PixelOperator";
+    src: url("fonts/PixelOperator.ttf") format("truetype");
+    font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+body{
+    margin: 0;
+    padding: 24px 12px 48px;
+    background-color: #4e341e;
+    image-rendering: pixelated;
+    color: #fff;
+    font-family: "PixelOperator", "Courier New", monospace;
+    font-size: 16px;
+    line-height: 1.3;
+    text-align: center;
+    -webkit-font-smoothing: none;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: normal;
+    margin: 0 0 24px;
+    color: #ffe066;
+    text-shadow: 3px 3px 0 #2a1707;
+}
+
+.hidden { display: none; }
+
+canvas { image-rendering: pixelated; display: block; }
+
+.chest {
+    height: 150px;
+    width: 160px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: flex-end;
+    cursor: pointer;
+}
+.chest:hover canvas {filter: brightness(1.15); }
+
+.panel {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    margin: 14px auto;
+    padding: 12px;
+    background: #c6c6c6;
+    box-shadow:
+        inset 4px 4px 0 #fff,
+        inset -4px -4px 0 #555,
+        0 0 0 4px #000;
+}
+
+.slot {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #8b8b8b;
+    box-shadow: inset 4px 4px 0 #373737, inset -4px -4px 0 #fff;
+}
+.slot.playing { background: #b9a24a; }
+.slot-label {
+    position: absolute;
+    bottom: -26px;
+    left: 0;
+    right: 0;
+    font-size: 16px;
+    color: #333;
+}
+#slots { padding-bottom: 36px; }
+
+.disc-wrap { cursor: pointer; }
+.disc-wrap:hover canvas { transform: translateY(-4px); }
+.disc-wrap.spin canvas { animation: spin 2s steps(8) infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.jukebox-wrap { position: relative; width: 160px; margin: 24px auto 16px; }
+.jukebox { cursor: pointer; user-select: none; }
+.jukebox:active canvas { transform: translateY(4px); }
+.jukebox-wrap.playing .jukebox { animation: bob 0.5s steps(1) infinite;}
+@keyframes bob {
+    0%  {transform: translateY(0);}
+    50% {transform: translateY(-4px);}
+}
+
+.note {
+    position: absolute;
+    top: -10px;
+    right: 8px;
+    opacity: 0;
+    pointer-events: none;
+}
+.jukebox-wrap.playing .note { animation: float 1.6s steps(8) infinite; }
+@keyframes float {
+    0%   { opacity: 1; transform: translate(0, 0); }
+    100% { opacity: 0; transform: translate(24px, -48px); }
+}
+
+.controls { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+button {
+    font-family: inherit;
+    font-size: 16px;
+    padding: 10px 16px;
+    color : #fff;
+    background: #7d7d7d;
+    border: 0;
+    cursor: pointer;
+    text-shadow: 2px 2px 0 #3e3e3e;
+    box-shadow: inset 3px 3px 0 #bdbdbd, inset -3px -3px 0 #3b3b3b, 0 0 0 3px #000;
+}
