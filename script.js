@@ -321,3 +321,120 @@ function makeDisc(trackIndex, onClick, spinning) {
     wrap.oneclick = onClick;
     return wrap;
 }
+
+function renderChest() {
+    chestEL.innerHTML = "";
+    chestEL.appendChild(pixelSprite(chestOpen ? CHEST_OPEN : CHEST_CLOSED, 10));
+    chestEL.title = chestOpen ? "Click to close" : "Click to open";
+}
+
+function renderInventory() {
+    inventory.innerHTML = "";
+    TRACKS.forEach((t, i) => {
+        const cell = document.createElement("div");
+        cell.className = "slot";
+        if (!slots.includes(i)) cell.appendChild(makeDisc(i, () => placeDisc(i), false));
+        inventory.appendChild(cell);
+    });
+}
+
+function renderSlots() {
+    slotsBox.innterHTML = "";
+    slots.forEach((trackIndex, s) => {
+        const cell = document.createElement("div");
+        cell.className = "slot" + (s === current && playing ? " playing" : "");
+        if (trackIndex !== null) {
+            cell.appendChild(makeDisc(trackIndex, () => removeDisc(s), s === current && playing));
+        }
+        const label = document.createElement("div");
+        label.className = "slot-label";
+        label.textContent = ["1st", "2nd", "3rd"][s];
+        cell.appendChild(label);
+        slotsBox.appendChild(cell);
+    });
+    jukeboxWrap.classList.toggle("playing", playing);
+}
+
+function render() {
+    renderChest();
+    renderInventory();
+    renderSlots();
+}
+
+function placeDisc(trackIndex) {
+    const free = slots.indexOf(null);
+    if (free === -1) {
+        say("Jukebox is full! Click a disc in a slot to take it out.");
+        return;
+    }
+    slots[free] = trackIndex;
+    say("Added " + TRACKS[trackIndex].name + ". Click the jukebox to play");
+    render();
+}
+
+function removeDisc(slotIndex) {
+    if (slotIndex === current) {
+        stopTrack();
+        current = -1;
+        playing = false;
+        say ("stopped");
+    }
+    slots[slotIndex] = null;
+    render();
+}
+
+function nextFilled(start) {
+    for (let i = start; i < slots,length; i++ ) if (slots[i] !== null) return i;
+    return -1;
+}
+
+function playSlot(i) {
+    if (i === -1) {
+        stopTrack();
+        current = -1;
+        playing = false;
+        say ("All discs finished. Click the jukebox to play again.");
+        render();
+        return;
+    }
+    current = i;
+    playing = true;
+    const track = TRACKS[slots[i]];
+    startTrack(track, () => playSlot(nextFilled(current + 1)));
+    say("Now playing: " + track.name);
+    render();
+}
+
+function togglePlay() {
+    if (slots.every((s) => s === null)) {
+        say("Put a disc in the jukebox first!");
+        return;
+    }
+    if (playing) {
+        pauseAudio();
+        playing = false;
+        say("Paused.");
+        render();
+    } else {
+        playSlot(nextFilled(0));
+    }
+}
+
+function skip() {
+    if (current === -1) return;
+    playSlot(nextFilled(current + 1));
+}
+
+chestEL.onclick = () => {
+    chestOpen = !chestOpen;
+    inventory.classList.toggle("hidden", !chestOpen);
+    renderChest();
+};
+chestEL.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") chestEL.click(); };
+
+jukeboxEl.onclick = togglePlay;
+jukeboxEL.oncontextmenu = (e) => { e.preventDefault(); skip(); };
+document.getElementById("playBtn").onclick = togglePlay;
+document.getElementById("skipBtn").onclick = skip;
+
+render();
