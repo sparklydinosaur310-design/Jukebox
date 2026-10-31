@@ -27,7 +27,7 @@ h1 {
     text-shadow: 3px 3px 0 #2a1707;
 }
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 canvas { image-rendering: pixelated; display: block; }
 

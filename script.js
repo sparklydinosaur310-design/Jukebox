@@ -146,7 +146,7 @@ const TRACKS = [
             [
                 [["A4", 1], ["C5", 1], ["E5", 2]],
                 [["F5", 1], ["E5", 1], ["C5", 2]],
-                [["G4", 1], ["C5", 1], ["E5", 1], ["G5", 1]]
+                [["G4", 1], ["C5", 1], ["E5", 1], ["G5", 1]],
                 [["F5", 1], ["D5", 1], ["B4", 2]],
             ],
         ],
@@ -181,7 +181,7 @@ const TRACKS = [
     },
     {
         name: "Deep Cave",
-        colol: "#4361ee",
+        color: "#4361ee",
         bpm: 56, step: 1, gain: 1,
         wave: { mel: "sine", arp: "triangle", bass: "sine"},
         chords: [
@@ -209,7 +209,7 @@ const TRACKS = [
 ];
 
 function freq(note) {
-    const m = note.match(/^([A-G])([#b?])(\d)$/);
+    const m = note.match(/^([A-G])([#b]?)(\d)$/);
     const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11}[m[1]]
     + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0);
     const semis = base + (Number(m[3]) - 4) * 12 - 9;
@@ -243,12 +243,12 @@ function scheduleTrack(ctx, dest, t, t0) {
             const chord = t.chords[i];
             const start = t0 + bar * 4 * beat;
 
-            tone(ctx, dest, freq(chord.bass), start, 4 * beat, t.waves.bass, 0.16 * t.gain);
+            tone(ctx, dest, freq(chord.bass), start, 4 * beat, t.wave.bass, 0.16 * t.gain);
 
             const count = Math.round(4 / t.step);
             for (let k = 0; k < count; k++) {
                 const n = chord.arp[arpOrder[k % 4]];
-                tone(ctx, dest, freq(n), start + k * t,step * beat, t,step * beat * 1.6, t.wave.arp, 0.07 * t.gain);
+                tone(ctx, dest, freq(n), start + k * t.step * beat, t.step * beat * 1.6, t.wave.arp, 0.07 * t.gain);
         }
 
         let pos = 0;
@@ -264,7 +264,7 @@ return bar * 4 * beat;
 
 function startTrack(track,  onEnd) {
     stopTrack();
-    if (!player.ctx) player.ctx = new (window.AudioContext || window.webkitAudioContext)
+    if (!player.ctx) player.ctx = new (window.AudioContext || window.webkitAudioContext)();
     const ctx = player.ctx;
     ctx.resume();
 
@@ -318,7 +318,7 @@ function makeDisc(trackIndex, onClick, spinning) {
     wrap.className = "disc-wrap" + (spinning ? " spin" : "");
     wrap.title = "Disc: " + TRACKS[trackIndex].name;
     wrap.appendChild(discSprite(TRACKS[trackIndex].color));
-    wrap.oneclick = onClick;
+    wrap.onclick = onClick;
     return wrap;
 }
 
@@ -339,7 +339,7 @@ function renderInventory() {
 }
 
 function renderSlots() {
-    slotsBox.innterHTML = "";
+    slotsBox.innerHTML = "";
     slots.forEach((trackIndex, s) => {
         const cell = document.createElement("div");
         cell.className = "slot" + (s === current && playing ? " playing" : "");
@@ -384,7 +384,7 @@ function removeDisc(slotIndex) {
 }
 
 function nextFilled(start) {
-    for (let i = start; i < slots,length; i++ ) if (slots[i] !== null) return i;
+    for (let i = start; i < slots.length; i++ ) if (slots[i] !== null) return i;
     return -1;
 }
 
@@ -415,6 +415,11 @@ function togglePlay() {
         playing = false;
         say("Paused.");
         render();
+    } else if (current !== -1) {
+        resumeAudio();
+        playing = true;
+        say("Now playing: " + TRACKS[slots[current]].name);
+        render();
     } else {
         playSlot(nextFilled(0));
     }
@@ -432,7 +437,7 @@ chestEL.onclick = () => {
 };
 chestEL.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") chestEL.click(); };
 
-jukeboxEl.onclick = togglePlay;
+jukeboxEL.onclick = togglePlay;
 jukeboxEL.oncontextmenu = (e) => { e.preventDefault(); skip(); };
 document.getElementById("playBtn").onclick = togglePlay;
 document.getElementById("skipBtn").onclick = skip;
