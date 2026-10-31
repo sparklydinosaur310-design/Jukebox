@@ -76,7 +76,9 @@ canvas { image-rendering: pixelated; display: block; }
 }
 #slots { padding-bottom: 36px; }
 
-.disc-wrap { cursor: pointer; }
+.disc-wrap { cursor: grab; }
+.disc-wrap.dragging { opacity: 0.4}
+.slot.over { background: #b9a24a; outline: 3px solid #ffe066; }
 .disc-wrap:hover canvas { transform: translateY(-4px); }
 .disc-wrap.spin canvas { animation: spin 2s steps(8) infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

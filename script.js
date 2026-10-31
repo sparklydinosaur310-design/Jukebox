@@ -319,6 +319,14 @@ function makeDisc(trackIndex, onClick, spinning) {
     wrap.title = "Disc: " + TRACKS[trackIndex].name;
     wrap.appendChild(discSprite(TRACKS[trackIndex].color));
     wrap.onclick = onClick;
+
+    wrap.draggable = true;
+    wrap.ondragstart = (e) => {
+        e.dataTransfer.setData("text/plain", JSON.stringify({ track: trackIndex, from: from}));
+        e.dataTransfer.effectAllowed = "move";
+        wrap.classList.add("dragging");
+    };
+    wrap.ondragend = () => wrap.classList.remove("dragging");
     return wrap;
 }
 
@@ -333,7 +341,7 @@ function renderInventory() {
     TRACKS.forEach((t, i) => {
         const cell = document.createElement("div");
         cell.className = "slot";
-        if (!slots.includes(i)) cell.appendChild(makeDisc(i, () => placeDisc(i), false));
+        if (!slots.includes(i)) cell.appendChild(makeDisc(i, () => placeDisc(i), false, -1));
         inventory.appendChild(cell);
     });
 }
@@ -343,8 +351,11 @@ function renderSlots() {
     slots.forEach((trackIndex, s) => {
         const cell = document.createElement("div");
         cell.className = "slot" + (s === current && playing ? " playing" : "");
+        cell.ondragover = (e) => { e.preventDefault(); cell.classList.add("over"); };
+        cell.ondragleave = () => cell.classList.remove("over");
+        cell.ondrop = (e) => { e.preventDefault(); cell.classList.remove("over"); dropOnSlot(e, s); };
         if (trackIndex !== null) {
-            cell.appendChild(makeDisc(trackIndex, () => removeDisc(s), s === current && playing));
+            cell.appendChild(makeDisc(trackIndex, () => removeDisc(s), s === current && playing, s));
         }
         const label = document.createElement("div");
         label.className = "slot-label";
@@ -381,6 +392,46 @@ function removeDisc(slotIndex) {
     }
     slots[slotIndex] = null;
     render();
+}
+
+function readDrag(e) {
+    try { return JSON.parse(e.dataTransfer.getData("text/plain"));}
+    catch (err) { return null; }
+}
+
+function stopIfPlaying(slotIndex) {
+    if (slotIndex === current) {
+        stopTrack();
+        current = -1;
+        playing = false;
+        say("Stopped.");
+    }
+}
+
+function dropOnSlot(e, target) {
+    const d = readDrag(e);
+    if (!d || d.from === target) return;
+    if (d.from === -1) {
+        stopIfPlaying(target);
+        slots[target] = d.track;
+        say("Put " + TRACKS[d.track].name + " in slot " + (target + 1) + " .");
+    } else {
+        stopIfPlaying(d.from);
+        stopIfPlaying(target);
+        const temp = slots[target];
+        slots[target] = slots[d.from];
+        slots [d.from] = temp;
+        say("Moved disc.");
+    }
+    render();
+}
+
+function dropToChest(e) {
+    e.preventDefault();
+    const d = readDrag(e);
+    if (!d || d.from === -1) return;
+    removeDisc(d.from);
+    say("Put " + TRACKS[d.track].name + " back in the chest.");
 }
 
 function nextFilled(start) {
@@ -441,5 +492,8 @@ jukeboxEL.onclick = togglePlay;
 jukeboxEL.oncontextmenu = (e) => { e.preventDefault(); skip(); };
 document.getElementById("playBtn").onclick = togglePlay;
 document.getElementById("skipBtn").onclick = skip;
-
+[inventory, chestEL].forEach((el) => {
+    el.ondragover = (e) => e.preventDefault();
+    el.ondrop = dropToChest;
+});
 render();
